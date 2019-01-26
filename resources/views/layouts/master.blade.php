@@ -34,16 +34,16 @@ scratch. This page gets rid of all links and provides the needed markup only.
     </ul>
 
     <!-- SEARCH FORM -->
-    <form class="form-inline ml-3">
+    
       <div class="input-group input-group-sm">
-        <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
+        <input class="form-control form-control-navbar" type="search" v-model="search" @keyup="searchit" placeholder="Search" aria-label="Search">
         <div class="input-group-append">
-          <button class="btn btn-navbar" type="submit">
+          <!-- <button class="btn btn-navbar" @click="searchit">
             <i class="fa fa-search"></i>
-          </button>
+          </button> -->
         </div>
       </div>
-    </form>
+    
 
     <!-- Right navbar links -->
      <!-- <ul class="navbar-nav ml-auto">
@@ -223,6 +223,24 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 Profile
               </p>
             </router-link>
+          </li>
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-piggy-bank green"></i>
+              <p>
+                Payments
+                <i class="right fa fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <router-link to="/invoice" class="nav-link">
+                  <i class="nav-icon fas fa-file-invoice green"></i>
+                  <p>Print Invoice</p>
+                </router-link>
+              </li>
+
+            </ul>
           </li>
           <li class="nav-item">
 
