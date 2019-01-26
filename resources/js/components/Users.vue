@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <div class="row mt-5">
+        <div class="row mt-5" v-if="$barrier.isAdminOrBusiness()">
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
@@ -23,7 +23,7 @@
                     <th>Date Registered</th>
                     <th> </th>
                   </tr>
-                  <tr v-for="user in users" :key="user.id">
+                  <tr v-for="user in users.data" :key="user.id">
                     <td>{{user.id}}</td>
                     <td>{{user.name |upText}}</td>
                     <td>{{user.email}}</td>
@@ -48,9 +48,19 @@
                 </tbody></table>
               </div>
               <!-- /.card-body -->
+              <div class="card-footer">
+                  <pagination :data="users" @pagination-change-page="getResults">
+                      	<span slot="prev-nav">&lt; Previous</span>
+	                    <span slot="next-nav">Next &gt;</span>
+                  </pagination>
+              </div>
             </div>
             <!-- /.card -->
           </div>
+        </div>
+
+        <div v-if="!$barrier.isAdminOrBusiness()">
+            <not-found></not-found>
         </div>
 
         <div class="modal fade" id="addNewUser" tabindex="-1" role="dialog" aria-labelledby="addNewUserLabel" aria-hidden="true">
@@ -146,6 +156,12 @@
             }
         },
         methods:{
+              getResults(page = 1){
+                  axios.get('api/user?page=' + page)
+				    .then(response => {
+					this.users = response.data;
+				});
+              },
               updateUser(){
                 this.$Progress.start();  
                 this.form.put('api/user/'+this.form.id)
@@ -219,7 +235,10 @@
                 })
             },
             loadUsers(){
-                axios.get("api/user").then(({data}) => (this.users = data.data));
+                if(this.$barrier.isAdminOrBusiness()){
+
+                    axios.get("api/user").then(({data}) => (this.users = data));
+                }
             },
             createUser(){
                 this.$Progress.start();

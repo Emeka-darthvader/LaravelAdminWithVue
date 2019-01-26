@@ -18,7 +18,7 @@
                         <h5 class="widget-user-desc">Web Designer</h5>
                     </div>
                     <div class="widget-user-image">
-                        <img class="img-circle" src="/img/profile.png" alt="User Avatar">
+                        <img class="img-circle" :src="getProfilePhoto()" alt="User Avatar">
                     </div>
                     <div class="card-footer">
                         <div class="row">
@@ -132,7 +132,7 @@
                                 <ul class="nav nav-pills">
                                 <li class="nav-item"><a class="nav-link active" href="#activity" data-toggle="tab">Activity</a></li>
                                 <li class="nav-item"><a class="nav-link" href="#timeline" data-toggle="tab">Timeline</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#settings" data-toggle="tab">Settings</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#settings" data-toggle="tab">User Details</a></li>
                                 </ul>
                             </div><!-- /.card-header -->
                             <div class="card-body">
@@ -353,38 +353,48 @@
                                         <label for="inputName" class="col-sm-2 control-label">Name</label>
 
                                         <div class="col-sm-10">
-                                        <input type="email" class="form-control" id="inputName" placeholder="Name">
+                                        <input type="text" v-model="form.name" class="form-control" :class="{'is-invalid':form.errors.has('name')}" id="inputName" placeholder="Name" >
+                                        <has-error :form="form" field="name"></has-error>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="inputEmail" class="col-sm-2 control-label">Email</label>
 
                                         <div class="col-sm-10">
-                                        <input type="email" class="form-control" id="inputEmail" placeholder="Email">
+                                        <input type="email" class="form-control" :class="{ 'is-invalid': form.errors.has('email') }" v-model="form.email" id="inputEmail" placeholder="Email">
+                                        <has-error :form="form" field="email"></has-error>
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="inputName2" class="col-sm-2 control-label">Name</label>
+                                        <label for="Password" class="col-sm-2 control-label">Password</label>
 
                                         <div class="col-sm-10">
-                                        <input type="text" class="form-control" id="inputName2" placeholder="Name">
+                                        <input type="email" class="form-control" :class="{'is-invalid':form.errors.has('password')}" v-model="form.password" id="Password" placeholder="Password">
+                                        <has-error :form="form" field="password"></has-error>
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="inputExperience" class="col-sm-2 control-label">Experience</label>
+                                        <label for="inputName2" class="col-sm-2 control-label">role</label>
 
                                         <div class="col-sm-10">
-                                        <textarea class="form-control" id="inputExperience" placeholder="Experience"></textarea>
+                                        <input type="text"  class="form-control" v-model="form.role" id="inputName2" disabled >
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="inputSkills" class="col-sm-2 control-label">Skills</label>
+                                        <label for="inputExperience" class="col-sm-2 control-label">Bio</label>
 
                                         <div class="col-sm-10">
-                                        <input type="text" class="form-control" id="inputSkills" placeholder="Skills">
+                                        <textarea class="form-control" v-model="form.bio" id="inputExperience" placeholder="Experience"></textarea>
                                         </div>
                                     </div>
                                     <div class="form-group">
+                                        <label for="inputName2" class="col-sm-2 control-label">Picture</label>
+
+                                        <div class="col-sm-10">
+                                        <input type="file"  class="form-input"  id="inputName2" @change="updateProfile" >
+                                        </div>
+                                    </div>
+                                    <!-- <div class="form-group">
                                         <div class="col-sm-offset-2 col-sm-10">
                                         <div class="checkbox">
                                             <label>
@@ -392,10 +402,10 @@
                                             </label>
                                         </div>
                                         </div>
-                                    </div>
+                                    </div> -->
                                     <div class="form-group">
                                         <div class="col-sm-offset-2 col-sm-10">
-                                        <button type="submit" class="btn btn-danger">Submit</button>
+                                        <button type="submit" class="btn btn-danger" @click.prevent="updateInfo">Submit</button>
                                         </div>
                                     </div>
                                     </form>
@@ -419,8 +429,71 @@
 
 <script>
     export default {
+        data(){
+            return {
+                form: new Form({
+                    id:'',
+                    name:'',
+                    email:'',
+                    password:'',
+                    role:'',
+                    bio:'',
+                    photo:''
+                })
+            }
+        },
         mounted() {
-            console.log('Component mounted.')
+            // console.log('Component mounted.')
+
+            this.loadProfile();
+            Fire.$on('ProfileChanged',()=>{
+             this.loadProfile();
+            });
+        },
+        methods:{
+            loadProfile(){
+                
+            axios.get("api/profile")
+            .then(({data})=>(this.form.fill(data)))
+            },
+            getProfilePhoto(){
+                return "img/profile/"+this.form.photo;
+                
+            },
+            updateProfile(e){
+                
+                let file = e.target.files[0];
+                let reader =  new FileReader();
+                if(file['size'] < 2111775){
+                reader.onloadend = (file) => {
+                    console.log('RESULT',reader.result);
+                    this.form.photo = reader.result;
+                }
+                reader.readAsDataURL(file);
+                }else{
+                    swal({
+                        type:'error',
+                        title:'Hmmm',
+                        text:'File Size larger than 2MB'
+
+                    });
+
+                }
+            },
+            updateInfo(e){
+                this.$Progress.start();
+                this.form.put('api/profile')
+                .then(()=>{
+                
+                this.$Progress.finish();
+                Fire.$emit('ProfileChanged');
+                })
+                .catch(()=>{
+                
+                this.$Progress.fail();
+                });
+
+            }
         }
     }
 </script>

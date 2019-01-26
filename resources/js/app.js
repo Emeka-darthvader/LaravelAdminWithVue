@@ -19,6 +19,10 @@ import swal from 'sweetalert2';
 
 import { Form, HasError, AlertError } from 'vform';
 
+
+import Barrier from "./barrier";
+Vue.prototype.$barrier = new Barrier(window.user);
+
 window.swal = swal;
 
 
@@ -34,6 +38,10 @@ window.toast = toast;
 window.Form = Form
 Vue.component(HasError.name, HasError)
 Vue.component(AlertError.name, AlertError)
+
+
+Vue.component('pagination', require('laravel-vue-pagination'));
+
 
 
 import VueRouter from 'vue-router'
@@ -96,6 +104,11 @@ Vue.component(
 Vue.component(
   'passport-personal-access-tokens',
   require('./components/passport/PersonalAccessTokens.vue').default
+);
+
+Vue.component(
+  'not-found',
+  require('./components/NotFoundComponent.vue').default
 );
 
 Vue.component('example-component', require('./components/ExampleComponent.vue').default);
